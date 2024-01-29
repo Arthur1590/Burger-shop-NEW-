@@ -143,7 +143,7 @@ function basket() {
     checkList.innerHTML += card(productArray[i]);
   }
 
-  order.innerHTML = total;
+  order.innerHTML = `Сумма к оплате: ${total} сум`;
 }
 
 function card(data) {
