@@ -1,155 +1,140 @@
-const product = {
-  plainBurger: {
+const productList = [
+  {
     name: "Гамбургер простой",
     price: 10000,
-    img: "images/product1.jpg",
+    kkal: 700,
     amount: 0,
-    doubleMayonnaise: 0,
-    lettuce: 0,
-    cheese: 0,
-    get totalSum() {
-      return (
-        this.price * this.amount +
-        extraProduct.doubleMayonnaise.price * this.doubleMayonnaise +
-        extraProduct.lettuce.price * this.lettuce +
-        extraProduct.cheese.price * this.cheese
-      );
+    get Summ() {
+      return this.price * this.amount;
+    },
+    get Kkal() {
+      return this.kkal * this.amount;
     },
   },
-  freshBurger: {
+  {
     name: "Гамбургер FRESH",
     price: 20500,
-    img: "images/product2.jpg",
+    kkal: 500,
     amount: 0,
-    doubleMayonnaise: 0,
-    lettuce: 0,
-    cheese: 0,
-    get totalSum() {
-      return (
-        this.price * this.amount +
-        extraProduct.doubleMayonnaise.price * this.doubleMayonnaise +
-        extraProduct.lettuce.price * this.lettuce +
-        extraProduct.cheese.price * this.cheese
-      );
+    get Summ() {
+      return this.price * this.amount;
+    },
+    get Kkal() {
+      return this.kkal * this.amount;
     },
   },
-  freshCombo: {
+  {
     name: "FRESH COMBO",
     price: 31900,
-    img: "images/product3.jpg",
+    kkal: 1500,
     amount: 0,
-    doubleMayonnaise: 0,
-    lettuce: 0,
-    cheese: 0,
-    get totalSum() {
-      return (
-        this.price * this.amount +
-        extraProduct.doubleMayonnaise.price * this.doubleMayonnaise +
-        extraProduct.lettuce.price * this.lettuce +
-        extraProduct.cheese.price * this.cheese
-      );
+    get Summ() {
+      return this.price * this.amount;
+    },
+    get Kkal() {
+      return this.kkal * this.amount;
     },
   },
-};
-
-const extraProduct = {
+];
+const extraProdut = {
   doubleMayonnaise: {
-    name: "doubleMayonnaise",
-    price: 7500,
+    price: 5000,
+    name: "Двойной майонез",
+    kkal: 200,
   },
   lettuce: {
-    name: "lettuce",
-    price: 6000,
+    price: 3000,
+    name: "Салатный лист",
+    kkal: 200,
   },
   cheese: {
-    name: "cheese",
     price: 4000,
+    name: "Сыр",
+    kkal: 200,
   },
 };
 
-const summBtn = document.querySelectorAll(".main__product-btn"),
-  modalParent = document.querySelector(".receipt"),
+const products = [...document.querySelectorAll(".main__product")],
+  productBtn = [...document.querySelectorAll(".main__product-btn")],
+  checkExtra = [...document.querySelectorAll(".main__product-checkbox")],
   btnModal = document.querySelector(".addCart"),
-  checkList = document.querySelector(".receipt__window-out"),
-  order = document.querySelector(".order__counter"),
-  sumExtra = document.querySelectorAll(".main__product-checkbox");
+  checkParent = document.querySelector(".receipt"),
+  checkOrder = document.querySelector(".receipt__window-out"),
+  totalOrder = document.querySelector(".order"),
+  orderClose = document.querySelector(".close");
 
+
+  orderClose.addEventListener('click', function() {
+    checkParent.classList.remove('active')
+  })
+  
 btnModal.addEventListener("click", function () {
-  modalParent.classList.toggle("active");
+  checkParent.classList.toggle("active");
 });
 
-summBtn.forEach((sumBtn) => {
-  sumBtn.addEventListener("click", function () {
-    minusOrPlus(this);
-  });
+productBtn.forEach((btn) => {
+  btn.addEventListener("click", plusMinus);
 });
 
-function minusOrPlus(sumBtn) {
-  let parent = sumBtn.closest(".main__product"),
-    parentId = parent.getAttribute("id");
-  const sumAttr = sumBtn.getAttribute("data-symbol");
-  if (sumAttr == "+") {
-    product[parentId].amount++;
-  } else if (sumAttr == "-" && product[parentId].amount > 0) {
-    product[parentId].amount--;
-  }
-
-  totalSummAndCount(parentId);
-  basket();
-}
-
-sumExtra.forEach((checkbox) => {
-  checkbox.addEventListener("change", function () {
-    const parentId = checkbox.closest(".main__product").id;
-    const extraName = checkbox.getAttribute("data-extra");
-
-    if (checkbox.checked) {
-      product[parentId][extraName]++;
-    } else {
-      if (product[parentId][extraName] > 0) {
-        product[parentId][extraName]--;
-      }
-    }
-
-    totalSummAndCount(parentId);
-    basket();
-  });
-});
-
-function totalSummAndCount(parentId) {
-  let parent = document.getElementById(parentId);
-  const productData = product[parentId];
-
-  parent.querySelector(".main__product-num").innerHTML = productData.amount;
-  parent.querySelector(".main__product-price span").innerHTML =
-    productData.totalSum;
-}
-
-function basket() {
-  const productArray = [];
-
+function plusMinus() {
+  const array = [];
   let total = 0;
+  const parent = this.closest(".main__product"),
+    parentIndex = products.indexOf(parent),
+    outAmount = parent.querySelector(".main__product-num"),
+    outPrice = parent.querySelector(".main__product-price span"),
+    outKkal = parent.querySelector(".main__product-call span"),
+    btnSymbol = this.getAttribute("data-symbol");
 
-  for (const data in product) {
-    const po = product[data];
-    if (po.amount > 0) {
-      total += po.totalSum;
-      productArray.push(po);
+  if (btnSymbol == "+") {
+    productList[parentIndex].amount++;
+  } else if (btnSymbol == "-" && productList[parentIndex].amount > 0) {
+    productList[parentIndex].amount--;
+  }
+  const { amount, Kkal, Summ } = productList[parentIndex];
+  outAmount.innerHTML = amount;
+  outPrice.innerHTML = Summ.toLocaleString();
+  outKkal.innerHTML = Kkal.toLocaleString();
+
+  for (const key in productList) {
+    if (productList[key].amount > 0) {
+      total += productList[key].Summ;
+      array.push(productList[key]);
     }
   }
-
-  checkList.innerHTML = "";
-  for (let i = 0; i < productArray.length; i++) {
-    checkList.innerHTML += card(productArray[i]);
+  checkOrder.innerHTML = "";
+  for (let i = 0; i < productList.length; i++) {
+    checkOrder.innerHTML += card(productList[i]);
   }
 
-  order.innerHTML = `Сумма к оплате: ${total} сум`;
+  totalOrder.innerHTML = `Общая сумма к оплате - ${total}`;
 }
 
 function card(data) {
   return `
-  <div>
-  <span>${data.name}</span> x <span>${data.amount}</span> - <span>${data.totalSum}</span>
-  </div>
+  <div> <sapn>${data.name}</span> x <sapn>${data.amount}</span> <sapn>${data.Summ}</span> </div>
   `;
+}
+checkExtra.forEach((checkbox) => {
+  checkbox.addEventListener("input", check);
+});
+
+function check() {
+  const parent = this.closest(".main__product"),
+    parentIndex = products.indexOf(parent),
+    outPrice = parent.querySelector(".main__product-price span");
+  outKkal = parent.querySelector(".main__product-call span");
+  attr = this.getAttribute("data-extra");
+
+  if (this.checked) {
+    productList[parentIndex].price += extraProdut[attr].price;
+    productList[parentIndex].kkal += extraProdut[attr].kkal;
+  } else {
+    productList[parentIndex].price -= extraProdut[attr].kkal;
+    productList[parentIndex].kkal -= extraProdut[attr].kkal;
+  }
+
+  const { Summ, Kkal } = productList[parentIndex];
+  outPrice.innerHTML = Summ.toLocaleString();
+  outKkal.innerHTML = Kkal.toLocaleString();
 }
